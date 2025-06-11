@@ -9,84 +9,97 @@ import io.github.spigotrce.paradiseclientfabric.command.Command;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.command.CommandSource;
 
-/**
- * This class represents a command for spamming a specified command in Minecraft.
- * It extends the {@link Command} class and overrides the {@link #build()} method to define the command structure.
- *
- * @author SpigotRCE
- * @since 1.5
- */
+import java.util.Random;
+
 public class SpamCommand extends Command {
-    /**
-     * A static boolean flag indicating whether the spamming is currently running.
-     */
     public static boolean isRunning = false;
-
-    /**
-     * A thread for executing the spamming process.
-     */
     private Thread thread;
+    private static final Random random = new Random();
 
-    /**
-     * Constructs a new SpamCommand instance.
-     */
     public SpamCommand() {
-        super("spam", "Spams the specified command");
+        super("spam", "Spams the specified command with plugin bypass");
     }
 
-    /**
-     * Builds the command structure using Brigadier's LiteralArgumentBuilder.
-     */
     @Override
     public void build(LiteralArgumentBuilder<CommandSource> root) {
-        root
-                .then(literal("stop")
-                        .executes((context) -> {
-                            if (!isRunning) {
-                                Helper.printChatMessage("Spam is not running");
-                                return SINGLE_SUCCESS;
-                            }
-                            isRunning = false;
+        root.then(literal("stop")
+                .executes(ctx -> {
+                    if (!isRunning) {
+                        Helper.printChatMessage("§c§l[Spam] Not running.");
+                        return SINGLE_SUCCESS;
+                    }
+                    isRunning = false;
+                    Helper.printChatMessage("§a§l[Spam] Stopped.");
+                    return SINGLE_SUCCESS;
+                }))
+            .then(argument("repeats", IntegerArgumentType.integer(1))
+                .then(argument("delay", IntegerArgumentType.integer(0))
+                    .then(argument("base", StringArgumentType.greedyString())
+                        .executes(ctx -> {
+                            int repeat = IntegerArgumentType.getInteger(ctx, "repeats");
+                            int delay = IntegerArgumentType.getInteger(ctx, "delay");
+                            String baseCommand = StringArgumentType.getString(ctx, "base");
+
+                            isRunning = true;
+                            Helper.printChatMessage("§a§l[Spam] Running with §f" + repeat + "§a repeats, delay §f" + delay + "ms");
+
+                            thread = new Thread(() -> {
+                                for (int i = 0; i < repeat; i++) {
+                                    if (!isRunning) return;
+
+                                    String payload = mutateCommand(baseCommand, i);
+                                    try {
+                                        Thread.sleep(randomizeDelay(delay));
+                                    } catch (InterruptedException e) {
+                                        Constants.LOGGER.error("Interrupted during delay", e);
+                                    }
+
+                                    MinecraftClient.getInstance().player.networkHandler.sendChatCommand(payload);
+                                }
+                                isRunning = false;
+                            });
+                            thread.start();
                             return SINGLE_SUCCESS;
-                        }))
-                .then(argument("repeation", IntegerArgumentType.integer())
-                        .executes((context) -> {
-                            Helper.printChatMessage("§4§l" + context.getInput() + "<repeation> <delay> <command>");
-                            return SINGLE_SUCCESS;
-                        })
-                        .then(argument("delay", IntegerArgumentType.integer())
-                                .executes((context) -> {
-                                    Helper.printChatMessage("§4§l" + context.getInput() + " <command>");
-                                    return SINGLE_SUCCESS;
-                                })
-                                .then(argument("command", StringArgumentType.greedyString())
-                                        .executes((context) -> {
-                                            int repetition = context.getArgument("repeation", Integer.class);
-                                            int delay = context.getArgument("delay", Integer.class);
-                                            String command = context.getArgument("command", String.class);
-                                            SpamCommand.isRunning = true;
-                                            thread = new Thread(() -> {
-                                                for (int i = 0; i < repetition; i++) {
-                                                    if (!SpamCommand.isRunning) {
-                                                        this.thread = null;
-                                                        return;
-                                                    }
-                                                    try {
-                                                        Thread.sleep(delay);
-                                                    } catch (InterruptedException e) {
-                                                        Constants.LOGGER.error("Unable to sleep for 1000ms", e);
-                                                    }
-                                                    getMinecraftClient().player.networkHandler.sendChatCommand(command);
-                                                }
-                                            });
-                                            thread.start();
-                                            return SINGLE_SUCCESS;
-                                        }))
-                                .executes((context) -> {
-                                    Helper.printChatMessage("§4§l" + context.getInput() + "<repeation> <delay> <command>");
-                                    return SINGLE_SUCCESS;
-                                })
-                        )
-                );
+                        })))));
+    }
+
+    private String mutateCommand(String input, int index) {
+        StringBuilder mutated = new StringBuilder();
+
+        // Optionally fake slash
+        if (index % 3 == 0) mutated.append("/");
+        else if (index % 4 == 0) mutated.append(".");
+
+        // Inject junk characters to bypass ChatControl/etc
+        String junk = getRandomJunk();
+        String spaced = input.replace(" ", " " + junk + " ");
+
+        mutated.append(spaced);
+
+        // Add random suffix (hex color, zero-width, or noise)
+        mutated.append(" ").append(randomSuffix());
+
+        return mutated.toString().trim();
+    }
+
+    private int randomizeDelay(int baseDelay) {
+        return baseDelay + random.nextInt(30); // Adds jitter
+    }
+
+    private String randomSuffix() {
+        String[] junk = {
+            "\u200B", // zero-width space
+            "§" + Integer.toHexString(random.nextInt(16)), // fake color
+            "\\", ".", "!", "~"
+        };
+        return junk[random.nextInt(junk.length)];
+    }
+
+    private String getRandomJunk() {
+        String[] junk = {
+            "\u200C", "\u200D", "\u200E", "\u2060", // zero-width chars
+            ".", "~", "`", "§" + Integer.toHexString(random.nextInt(15))
+        };
+        return junk[random.nextInt(junk.length)];
     }
 }
