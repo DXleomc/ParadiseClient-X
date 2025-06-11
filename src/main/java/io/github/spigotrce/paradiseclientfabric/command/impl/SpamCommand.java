@@ -60,13 +60,13 @@ public class SpamCommand extends Command {
                             });
                             thread.start();
                             return SINGLE_SUCCESS;
-                        })))));
+                        }))));
     }
 
     private String mutateCommand(String input, int index) {
         StringBuilder mutated = new StringBuilder();
 
-        // Optionally fake slash
+        // Optionally fake slash or other command prefixes
         if (index % 3 == 0) mutated.append("/");
         else if (index % 4 == 0) mutated.append(".");
 
