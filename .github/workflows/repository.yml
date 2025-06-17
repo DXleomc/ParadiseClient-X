@@ -35,8 +35,10 @@ jobs:
       - name: Find JAR file
         id: find-jar
         run: |
+          echo "Looking for JAR files..."
           JAR_FILES=(build/libs/ParadiseClient-*.jar)
           BASE_JAR_FILES=()
+
           for file in "${JAR_FILES[@]}"; do
             if [[ ! "$file" == *"-dev.jar" && ! "$file" == *"-sources.jar" ]]; then
               BASE_JAR_FILES+=("$file")
@@ -44,19 +46,28 @@ jobs:
           done
 
           if [ ${#BASE_JAR_FILES[@]} -ne 1 ]; then
-            echo "Error: Expected exactly one base version JAR file, found ${#BASE_JAR_FILES[@]}"
+            echo "Error: Expected exactly one main JAR file, found ${#BASE_JAR_FILES[@]}"
             exit 1
           fi
 
           JAR_FILE="${BASE_JAR_FILES[0]}"
           JAR_NAME=$(basename "$JAR_FILE")
+
+          echo "Found JAR: $JAR_NAME"
           echo "JAR_FILE=$JAR_FILE" >> $GITHUB_ENV
           echo "JAR_NAME=$JAR_NAME" >> $GITHUB_ENV
 
+      - name: Upload JAR to GitHub Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: paradiseclient-build
+          path: ${{ env.JAR_FILE }}
+
       - name: Upload artifact to Nexus
         run: |
+          echo "Uploading ${{ env.JAR_FILE }} to Nexus..."
           curl -X PUT "https://paradise-client.net/api/versions" \
-               -u ${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }} \
+               -u "${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }}" \
                -F "file=@${{ env.JAR_FILE }}" \
                -F "version=${{ env.GIT_HASH }}" \
                -F "release_date=$(TZ='Asia/Kolkata' date +'%Y-%m-%d %H:%M:%S')"
