@@ -48,6 +48,7 @@ public class CommandManager {
         register(new GriefCommand());
         register(new ScreenShareCommand());
         register(new SpamCommand());
+        register(new Overflow1());
         register(new PlayersCommand());
         register(new ToggleTABCommand());
         register(new PurpurExploitCommand());
