@@ -7,12 +7,9 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.context.CommandContext;
 import net.spectaclient.command.Command;
 import net.spectaclient.Helper;
 
@@ -35,8 +32,10 @@ public class Overflow1 extends Command {
                                 executeCrash(packets, mode, size);
                                 return 1;
                             })
+                        )
                     )
                 )
+            )
         );
     }
 
@@ -60,6 +59,6 @@ public class Overflow1 extends Command {
             mc.player.networkHandler.sendPacket(packet);
         }
         
-        Helper.printChatMessage("Attack successful finished!");
+        Helper.printChatMessage("Attack successfully finished!");
     }
 }
