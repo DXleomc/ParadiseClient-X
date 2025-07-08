@@ -1,4 +1,4 @@
-package net.spectaclient.command.impl;
+package net.paradise_client.command.impl;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
