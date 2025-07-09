@@ -31,7 +31,7 @@ public class BungeeConsole extends Command {
 
     private int executeCommand(CommandContext<?> context) {
         String command = context.getArgument("command", String.class);
-        CustomPayloadC2SPacket packet = new CustomPayloadC2SPacket(new BungeeCommandWriter(command));
+        CustomPayloadC2SPacket packet = new CustomPayloadC2SPacket(new BungeeCommandPacket(command));
         Helper.sendPacket(packet);
         Helper.printChatMessage("Payload sent!");
         return 1;
