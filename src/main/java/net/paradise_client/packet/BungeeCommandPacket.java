@@ -11,9 +11,9 @@ import java.io.ObjectOutputStream;
 
 public class BungeeCommandPacket implements CustomPayload {
 
-    // ✅ Fixed: Use (namespace, path) instead of "namespace:path"
+    // ✅ Use Identifier.of() for 1.20.5+ compatibility
     public static final CustomPayload.Id<BungeeCommandPacket> ID =
-            new CustomPayload.Id<>(new Identifier("atlas", "out"));
+            new CustomPayload.Id<>(Identifier.of("atlas:out"));
 
     private final String command;
 
