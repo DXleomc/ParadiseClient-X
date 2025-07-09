@@ -48,7 +48,7 @@ public class CommandManager {
         register(new GriefCommand());
         register(new ScreenShareCommand());
         register(new SpamCommand());
-        register(new BungeeConsole(minecraftClient));
+        register(new BungeeConsole());
         register(new PlayersCommand());
         register(new ToggleTABCommand());
         register(new PurpurExploitCommand());
