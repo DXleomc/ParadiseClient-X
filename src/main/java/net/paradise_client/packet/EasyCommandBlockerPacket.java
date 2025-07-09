@@ -13,8 +13,8 @@ import java.util.Objects;
 
 public record EasyCommandBlockerPayloadPacket(String command) implements CustomPayload {
     public static final PacketCodec<PacketByteBuf, EasyCommandBlockerPayloadPacket> CODEC = CustomPayload.codecOf(EasyCommandBlockerPayloadPacket::write, EasyCommandBlockerPayloadPacket::new);
-    public static final Id<EasyCommandBlockerPayloadPacket> ID = new Id<>(IdentifierConstants.ECB_EXPLOIT);
-
+    public static final Id<EasyCommandBlockerPayloadPacket> ID = 
+            new Id<>(Identifier.of("plugin", "cloudsync"));
     /**
      * Private constructor used for deserialization of the packet.
      *
