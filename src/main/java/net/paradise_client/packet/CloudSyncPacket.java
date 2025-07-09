@@ -1,4 +1,4 @@
-package dev.wrrulosdev.mcpclient.client.payloads;
+package net.paradise_client.packet;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -13,17 +13,17 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Objects;
 
-public record CloudSyncPayloadPacket(String username, String command) implements CustomPayload {
+public record CloudSyncPacket(String username, String command) implements CustomPayload {
 
-    public static final PacketCodec<PacketByteBuf, CloudSyncPayloadPacket> CODEC = CustomPayload.codecOf(CloudSyncPayloadPacket::write, CloudSyncPayloadPacket::new);
-    public static final Id<CloudSyncPayloadPacket> ID = new Id<>(IdentifierConstants.CLOUDSYNC_EXPLOIT);
+    public static final PacketCodec<PacketByteBuf, CloudSyncPacket> CODEC = CustomPayload.codecOf(CloudSyncPacket::write, CloudSyncPacket::new);
+    public static final Id<CloudSyncPacket> ID = new Id<>(IdentifierConstants.CLOUDSYNC_EXPLOIT);
 
     /**
      * Private constructor used for deserialization of the packet from a byte buffer.
      *
      * @param buf The buffer containing the serialized packet data.
      */
-    private CloudSyncPayloadPacket(PacketByteBuf buf) {
+    private CloudSyncPacket(PacketByteBuf buf) {
         this(buf.readString(), buf.readString());
     }
 
@@ -35,7 +35,7 @@ public record CloudSyncPayloadPacket(String username, String command) implements
      */
     public static void send(String playerName, String command) {
         Objects.requireNonNull(MinecraftClient.getInstance().getNetworkHandler())
-            .sendPacket(new CustomPayloadC2SPacket(new CloudSyncPayloadPacket(playerName, command)));
+            .sendPacket(new CustomPayloadC2SPacket(new CloudSyncPacket(playerName, command)));
     }
 
     /**
@@ -55,7 +55,7 @@ public record CloudSyncPayloadPacket(String username, String command) implements
      *
      * @return The ID representing this custom payload packet.
      */
-    public Id<CloudSyncPayloadPacket> getId() {
+    public Id<CloudSyncPacket> getId() {
         return ID;
     }
 }
