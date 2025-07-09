@@ -1,6 +1,6 @@
 package net.paradise_client.packet;
 
-import dev.wrrulosdev.mcpclient.client.constants.IdentifierConstants;
+import net.minecraft.util.Identifier;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
