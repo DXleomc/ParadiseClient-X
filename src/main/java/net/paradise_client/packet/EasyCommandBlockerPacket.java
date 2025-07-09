@@ -11,16 +11,16 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Objects;
 
-public record EasyCommandBlockerPayloadPacket(String command) implements CustomPayload {
-    public static final PacketCodec<PacketByteBuf, EasyCommandBlockerPayloadPacket> CODEC = CustomPayload.codecOf(EasyCommandBlockerPayloadPacket::write, EasyCommandBlockerPayloadPacket::new);
-    public static final Id<EasyCommandBlockerPayloadPacket> ID = 
+public record EasyCommandBlockerPacket(String command) implements CustomPayload {
+    public static final PacketCodec<PacketByteBuf, EasyCommandBlockerPacket> CODEC = CustomPayload.codecOf(EasyCommandBlockerPayloadPacket::write, EasyCommandBlockerPayloadPacket::new);
+    public static final Id<EasyCommandBlockerPacket> ID = 
             new Id<>(Identifier.of("ecb", "channel"));
     /**
      * Private constructor used for deserialization of the packet.
      *
      * @param buf The buffer containing the serialized packet data.
      */
-    private EasyCommandBlockerPayloadPacket(PacketByteBuf buf) {
+    private EasyCommandBlockerPacket(PacketByteBuf buf) {
         this(buf.readString());
     }
 
@@ -31,7 +31,7 @@ public record EasyCommandBlockerPayloadPacket(String command) implements CustomP
      */
     public static void send(String command) {
         Objects.requireNonNull(MinecraftClient.getInstance().getNetworkHandler())
-            .sendPacket(new CustomPayloadC2SPacket(new EasyCommandBlockerPayloadPacket(command)));
+            .sendPacket(new CustomPayloadC2SPacket(new EasyCommandBlockerPacket(command)));
     }
 
     /**
@@ -57,7 +57,7 @@ public record EasyCommandBlockerPayloadPacket(String command) implements CustomP
      *
      * @return The ID representing this custom payload packet.
      */
-    public Id<EasyCommandBlockerPayloadPacket> getId() {
+    public Id<EasyCommandBlockerPacket> getId() {
         return ID;
     }
 }
