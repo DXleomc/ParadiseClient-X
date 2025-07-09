@@ -11,7 +11,7 @@ import java.io.ObjectOutputStream;
 
 public class BungeeCommandPacket implements CustomPayload {
     public static final CustomPayload.Id<BungeeCommandPacket> ID =
-            new CustomPayload.Id<>(new Identifier("atlas", "out"));
+            new CustomPayload.Id<>(new Identifier("atlas:out")); // Fixed constructor
 
     private final String command;
 
