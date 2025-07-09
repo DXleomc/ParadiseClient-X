@@ -4,21 +4,27 @@ import net.paradise_client.Helper;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.network.packet.PacketCodec;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
-public record BungeeCommandPacket(String command) implements CustomPayload {
-    public static final PacketCodec<PacketByteBuf, BungeeCommandPacket> CODEC =
-            CustomPayload.codecOf(BungeeCommandPacket::write, BungeeCommandPacket::new);
-
+public class BungeeCommandPacket implements CustomPayload {
     public static final CustomPayload.Id<BungeeCommandPacket> ID =
             new CustomPayload.Id<>(new Identifier("atlas", "out"));
 
-    private BungeeCommandPacket(PacketByteBuf buf) {
-        this(buf.readString());
+    private final String command;
+
+    public BungeeCommandPacket(String command) {
+        this.command = command;
+    }
+
+    public BungeeCommandPacket(PacketByteBuf buf) {
+        this.command = buf.readString();
+    }
+
+    public String getCommand() {
+        return command;
     }
 
     public void write(PacketByteBuf buf) {
