@@ -59,6 +59,7 @@ public class CommandManager {
         register(new ECBCommand());
         register(new SignedVelocityCommand());
         register(new DumpCommand());
+        register(new EasyCommandBlockerExploitCommand());
         register(new HelpCommand());
         register(new ChatRoomCommand());
     }
