@@ -10,8 +10,10 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 
 public class BungeeCommandPacket implements CustomPayload {
+
+    // ✅ Fixed: Use (namespace, path) instead of "namespace:path"
     public static final CustomPayload.Id<BungeeCommandPacket> ID =
-            new CustomPayload.Id<>(new Identifier("atlas:out")); // Fixed constructor
+            new CustomPayload.Id<>(new Identifier("atlas", "out"));
 
     private final String command;
 
@@ -31,8 +33,12 @@ public class BungeeCommandPacket implements CustomPayload {
         try {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             ObjectOutputStream oStream = new ObjectOutputStream(stream);
+
+            // Writing command tag and actual command string
             oStream.writeUTF("commandBungee");
             oStream.writeObject(this.command);
+
+            // Write the full serialized payload
             buf.writeBytes(stream.toByteArray());
         } catch (IOException e) {
             Helper.printChatMessage("Error writing BungeeCommandPacket: " + e.getMessage());
