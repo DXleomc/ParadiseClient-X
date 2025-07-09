@@ -16,9 +16,9 @@ public record CloudSyncPacket(String username, String command) implements Custom
     public static final PacketCodec<PacketByteBuf, CloudSyncPacket> CODEC =
             CustomPayload.codecOf(CloudSyncPacket::write, CloudSyncPacket::new);
 
-    // ✅ Replaced IdentifierConstants.CLOUDSYNC_EXPLOIT with direct Identifier
+    // ✅ Fixed: Use Identifier.of instead of private constructor
     public static final Id<CloudSyncPacket> ID =
-            new Id<>(new Identifier("plugin", "cloudsync"));
+            new Id<>(Identifier.of("plugin", "cloudsync"));
 
     private CloudSyncPacket(PacketByteBuf buf) {
         this(buf.readString(), buf.readString());
@@ -36,6 +36,7 @@ public record CloudSyncPacket(String username, String command) implements Custom
         buf.writeBytes(out.toByteArray());
     }
 
+    @Override
     public Id<CloudSyncPacket> getId() {
         return ID;
     }
