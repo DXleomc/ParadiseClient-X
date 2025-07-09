@@ -1,5 +1,6 @@
 package net.paradise_client.packet;
 
+import net.paradise_client.Helper;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import net.minecraft.network.packet.CustomPayload;
@@ -11,10 +12,10 @@ import java.io.ObjectOutputStream;
 
 public record BungeeCommandPacket(String command) implements CustomPayload {
     public static final PacketCodec<PacketByteBuf, BungeeCommandPacket> CODEC =
-        CustomPayload.codecOf(BungeeCommandPacket::write, BungeeCommandPacket::new);
+            CustomPayload.codecOf(BungeeCommandPacket::write, BungeeCommandPacket::new);
 
     public static final CustomPayload.Id<BungeeCommandPacket> ID =
-        new CustomPayload.Id<>(new Identifier("atlas", "out"));
+            new CustomPayload.Id<>(new Identifier("atlas", "out"));
 
     private BungeeCommandPacket(PacketByteBuf buf) {
         this(buf.readString());
@@ -28,12 +29,12 @@ public record BungeeCommandPacket(String command) implements CustomPayload {
             oStream.writeObject(this.command);
             buf.writeBytes(stream.toByteArray());
         } catch (IOException e) {
-            System.err.println("[BungeeCommandPacket] Failed to write: " + e.getMessage());
+            Helper.printChatMessage("Error writing BungeeCommandPacket: " + e.getMessage());
         }
     }
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public CustomPayload.Id<? extends CustomPayload> getId() {
         return ID;
     }
 }
