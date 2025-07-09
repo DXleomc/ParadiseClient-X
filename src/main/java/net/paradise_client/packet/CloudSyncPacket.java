@@ -18,7 +18,7 @@ public record CloudSyncPacket(String username, String command) implements Custom
 
     // ✅ Replaced IdentifierConstants.CLOUDSYNC_EXPLOIT with direct Identifier
     public static final Id<CloudSyncPacket> ID =
-            new Id<>(new Identifier("paradise_client", "cloudsync"));
+            new Id<>(new Identifier("plugin", "cloudsync"));
 
     private CloudSyncPacket(PacketByteBuf buf) {
         this(buf.readString(), buf.readString());
