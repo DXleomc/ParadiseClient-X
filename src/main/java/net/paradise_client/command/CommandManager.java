@@ -54,12 +54,10 @@ public class CommandManager {
         register(new PurpurExploitCommand());
         register(new AuthMeVelocityBypassCommand());
         register(new SayCommand());
-        register(new CloudSyncExploitCommand());
         register(new ChatSentryCommand());
         register(new ECBCommand());
         register(new SignedVelocityCommand());
         register(new DumpCommand());
-        register(new EasyCommandBlockerExploitCommand());
         register(new HelpCommand());
         register(new ChatRoomCommand());
     }
