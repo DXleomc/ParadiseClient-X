@@ -54,6 +54,7 @@ public class CommandManager {
         register(new PlayersCommand());
         register(new ToggleTABCommand());
         register(new PurpurExploitCommand());
+        register(new WorldEditExploitCommand());
         register(new AuthMeVelocityBypassCommand());
         register(new SayCommand());
         register(new ChatSentryCommand());
